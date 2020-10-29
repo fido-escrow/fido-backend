@@ -1,60 +1,41 @@
-# src/models/UserModel.py
-from marshmallow import fields, Schema
-import datetime
+# src/models/PartyModel.py
 from . import db
-from ..app import bcrypt #after database migration uncomment after to execute python run.py
-from .BlogpostModel import BlogpostSchema
-from .LayoutModel import LayoutSchema
-from .ProjectModel import ProjectSchema
+import datetime
+from marshmallow import fields, Schema
 
-class UserModel(db.Model):
+class PartyModel(db.Model):
     """
-    User Model
+    Party Model
     """
-    
-    # table name
-    __tablename__ = 'user'
+
+    __tablename__ = 'party'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
     apaterno = db.Column(db.String(128), nullable=False)
     amaterno = db.Column(db.String(128))
     rfc = db.Column(db.String(128))
-    avatar = db.Column(db.Text)
-    phone = db.Column(db.Numeric(14,0))
     moral = db.Column(db.Boolean)
-    admin = db.Column(db.Boolean)
-    tokenfg = db.Column(db.Text)
     street = db.Column(db.String(250))
     int_no = db.Column(db.String(10))
-    ext_no = db.Column(db.String(10))
+    ext_no = db.Column(db.String(10)) 
     suburb = db.Column(db.String(250))
     country = db.Column(db.String(250))
     state = db.Column(db.String(250))
     city = db.Column(db.String(250))
     cp = db.Column(db.String(50))
-    email = db.Column(db.String(128), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=True)
+    typo = db.Column(db.Integer)
+    email = db.Column(db.String(128), nullable=False)
+    contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=False)
     created_at = db.Column(db.DateTime)
     modified_at = db.Column(db.DateTime)
-    blogposts = db.relationship('BlogpostModel', backref='user', lazy=True)
-    layouts = db.relationship('LayoutModel', backref='user', lazy=True)
-    projects = db.relationship('ProjectModel', backref='user', lazy=True)
 
-  # class constructor
     def __init__(self, data):
-        """
-        Class constructor
-        """
         self.name = data.get('name')
         self.apaterno = data.get('apaterno')
         self.amaterno = data.get('amaterno')
         self.rfc = data.get('rfc')
-        self.avatar = data.get('avatar')
-        self.phone = data.get('phone')
         self.moral = data.get('moral')
-        self.admin = data.get('admin')
-        self.tokenfg = data.get('tokenfg')
         self.street = data.get('street')
         self.int_no = data.get('int_no')
         self.ext_no = data.get('ext_no')
@@ -63,8 +44,9 @@ class UserModel(db.Model):
         self.state = data.get('state')
         self.city = data.get('city')
         self.cp = data.get('cp')
+        self.typo = data.get('typo')
         self.email = data.get('email')
-        self.password = self.__generate_hash(data.get('password'))
+        self.contract_id = data.get('contract_id')
         self.created_at = datetime.datetime.utcnow()
         self.modified_at = datetime.datetime.utcnow()
 
@@ -74,8 +56,6 @@ class UserModel(db.Model):
 
     def update(self, data):
         for key, item in data.items():
-            if key == 'password': 
-                self.password = self.__generate_hash(data.get('password'))
             setattr(self, key, item)
         self.modified_at = datetime.datetime.utcnow()
         db.session.commit()
@@ -83,42 +63,28 @@ class UserModel(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-
-    def __generate_hash(self, password):
-        return bcrypt.generate_password_hash(password, rounds=10).decode("utf-8")
-    
-    def check_hash(self, password):
-        return bcrypt.check_password_hash(self.password, password)
-
+  
+    # @staticmethod
+    # def get_all_blogposts():
+    #     return BlogpostModel.query.all()
+  
     @staticmethod
-    def get_all_users():
-        return UserModel.query.all()
+    def get_one_party(id):
+        return PartyModel.query.get(id)
 
-    @staticmethod
-    def get_one_user(id):
-        return UserModel.query.get(id)
-        
-    @staticmethod
-    def get_user_by_email(value):
-        return UserModel.query.filter_by(email=value).first()
-
-    def __repr(self):
+    def __repr__(self):
         return '<id {}>'.format(self.id)
 
-class UserSchema(Schema):
+class PartySchema(Schema):
     """
-    User Schema
+    Party Schema
     """
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     apaterno = fields.Str(required=True)
     amaterno = fields.Str()
     rfc = fields.Str()
-    avatar = fields.Str()
-    phone = fields.Number()
     moral = fields.Bool()
-    admin = fields.Bool()
-    tokenfg = fields.Str()
     street = fields.Str()
     int_no = fields.Str()
     ext_no = fields.Str()
@@ -127,10 +93,8 @@ class UserSchema(Schema):
     state = fields.Str()
     city = fields.Str()
     cp = fields.Str()
+    typo = fields.Int()
     email = fields.Email(required=True)
-    password = fields.Str(required=True)
+    contract_id = fields.Int(required=True)
     created_at = fields.DateTime(dump_only=True)
     modified_at = fields.DateTime(dump_only=True)
-    blogposts = fields.Nested(BlogpostSchema, many=True)
-    layouts = fields.Nested(LayoutSchema, many=True)
-    projects = fields.Nested(ProjectSchema, many=True)

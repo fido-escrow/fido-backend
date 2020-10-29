@@ -6,6 +6,7 @@ from .models import db, bcrypt
 
 from .views.UserView import user_api as user_blueprint
 from .views.BlogpostView import blogpost_api as blogpost_blueprint
+from .views.ProjectView import project_api as project_blueprint
 
 def create_app(env_name):
   """
@@ -22,8 +23,9 @@ def create_app(env_name):
 
   db.init_app(app)
 
-  app.register_blueprint(user_blueprint, url_prefix='/api/v1/users')
-  app.register_blueprint(blogpost_blueprint, url_prefix='/api/v1/blogposts')
+  app.register_blueprint(user_blueprint, url_prefix='/api/v1/user')
+  app.register_blueprint(blogpost_blueprint, url_prefix='/api/v1/blogpost')
+  app.register_blueprint(project_blueprint, url_prefix='/api/v1/project')
 
   @app.route('/')
   def index():

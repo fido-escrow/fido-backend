@@ -38,7 +38,7 @@ def create():
     req_data = request.get_json()
     app.logger.info('llega siquiera blog--------------#'+json.dumps(req_data))
     
-    req_data['owner_id'] = g.user.get('id')
+    req_data['user_id'] = g.user.get('id')
 
     try:
         data = blogpost_schema.load(req_data)
@@ -61,7 +61,7 @@ def update(blogpost_id):
     if not post:
         return custom_response({'error': 'post not found'}, 404)
     data = blogpost_schema.dump(post)
-    if data.get('owner_id') != g.user.get('id'):
+    if data.get('user_id') != g.user.get('id'):
         return custom_response({'error': 'permission denied'}, 400)
 
     try:
@@ -83,7 +83,7 @@ def delete(blogpost_id):
     if not post:
         return custom_response({'error': 'post not found'}, 404)
     data = blogpost_schema.dump(post)
-    if data.get('owner_id') != g.user.get('id'):
+    if data.get('user_id') != g.user.get('id'):
         return custom_response({'error': 'permission denied'}, 400)
 
     post.delete()

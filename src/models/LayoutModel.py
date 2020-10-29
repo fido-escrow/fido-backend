@@ -1,14 +1,14 @@
-# src/models/BlogpostModel.py
+# src/models/LayoutModel.py
 from . import db
 import datetime
 from marshmallow import fields, Schema
 
-class BlogpostModel(db.Model):
+class LayoutModel(db.Model):
     """
-    Blogpost Model
+    Layout Model
     """
 
-    __tablename__ = 'blogpost'
+    __tablename__ = 'layout'
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
@@ -39,19 +39,19 @@ class BlogpostModel(db.Model):
         db.session.commit()
   
     @staticmethod
-    def get_all_blogposts():
-        return BlogpostModel.query.all()
+    def get_all_layouts():
+        return LayoutModel.query.all()
   
     @staticmethod
-    def get_one_blogpost(id):
-        return BlogpostModel.query.get(id)
+    def get_one_layout(id):
+        return LayoutModel.query.get(id)
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
 
-class BlogpostSchema(Schema):
+class LayoutSchema(Schema):
     """
-    Blogpost Schema
+    Layout Schema
     """
     id = fields.Int(dump_only=True)
     title = fields.Str(required=True)

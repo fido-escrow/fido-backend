@@ -3,6 +3,7 @@ from marshmallow import fields, Schema
 import datetime
 from . import db
 from ..app import bcrypt #after database migration uncomment after to execute python run.py
+
 from .BlogpostModel import BlogpostSchema
 from .LayoutModel import LayoutSchema
 from .ProjectModel import ProjectSchema

@@ -33,6 +33,6 @@ def create_app(env_name):
     example endpoint
     """
     app.logger.info('Mostrando los posts del blog')
-    return 'Felicitaciones! Tu primer ruta esta funcionando por el puerto 5005'
+    return 'Felicitaciones! Has instalado correctamente el backend FIDO'
 
   return app

@@ -7,6 +7,8 @@ from .models import db, bcrypt
 from .views.UserView import user_api as user_blueprint
 from .views.BlogpostView import blogpost_api as blogpost_blueprint
 from .views.ProjectView import project_api as project_blueprint
+from .views.LayoutView import layout_api as layout_blueprint
+from .views.ContractView import contract_api as contract_blueprint
 
 def create_app(env_name):
   """
@@ -26,6 +28,8 @@ def create_app(env_name):
   app.register_blueprint(user_blueprint, url_prefix='/api/v1/user')
   app.register_blueprint(blogpost_blueprint, url_prefix='/api/v1/blogpost')
   app.register_blueprint(project_blueprint, url_prefix='/api/v1/project')
+  app.register_blueprint(layout_blueprint, url_prefix='/api/v1/layout')
+  app.register_blueprint(contract_blueprint, url_prefix='/api/v1/contract')
 
   @app.route('/')
   def index():

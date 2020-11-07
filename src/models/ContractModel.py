@@ -18,9 +18,10 @@ class ContractModel(db.Model):
     mifiel_signed = db.Column(db.Boolean)
     mifiel_id = db.Column(db.String(250))
     graph_signed = db.Column(db.Text)
-    status = fields.Int()
+    status = db.Column(db.Integer)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
     parties = db.relationship('PartyModel', backref='contract', lazy=True)
+    typo = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
     modified_at = db.Column(db.DateTime)
 
@@ -28,6 +29,7 @@ class ContractModel(db.Model):
         self.name = data.get('name')
         self.content = data.get('content')
         self.mifiel_signed = data.get('mifiel_signed')
+        self.typo = data.get('typo')
         self.mifiel_id = data.get('mifiel_id')
         self.graph_signed = data.get('graph_signed')
         self.status = data.get('status')
@@ -49,9 +51,9 @@ class ContractModel(db.Model):
         db.session.delete(self)
         db.session.commit()
   
-    # @staticmethod
-    # def get_all_blogposts():
-    #     return BlogpostModel.query.all()
+    @staticmethod
+    def get_all_contracts(project_id):
+        return ContractModel.query.filter_by(project_id=project_id).all()
   
     @staticmethod
     def get_one_contract(id):
@@ -69,6 +71,7 @@ class ContractSchema(Schema):
     content = fields.Str()
     mifiel_signed = fields.Bool()
     mifiel_id = fields.Str()
+    typo = fields.Int()
     graph_signed = fields.Str()
     status = fields.Int()
     project_id = fields.Int(required=True)

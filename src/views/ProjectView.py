@@ -51,28 +51,28 @@ def create():
     data = project_schema.dump(project)
     return custom_response(data, 201)    
 
-# @blogpost_api.route('/<int:blogpost_id>', methods=['PUT'])
-# @Auth.auth_required
-# def update(blogpost_id):
-#     """
-#     Update A Blogpost
-#     """
-#     req_data = request.get_json()
-#     post = BlogpostModel.get_one_blogpost(blogpost_id)
-#     if not post:
-#         return custom_response({'error': 'post not found'}, 404)
-#     data = blogpost_schema.dump(post)
-#     if data.get('user_id') != g.user.get('id'):
-#         return custom_response({'error': 'permission denied'}, 400)
+@project_api.route('/<int:project_id>', methods=['PUT'])
+@Auth.auth_required
+def update(project_id):
+    """
+    Update A project
+    """
+    req_data = request.get_json()
+    proy = ProjectModel.get_one_project(project_id)
+    if not proy:
+        return custom_response({'error': 'project not found'}, 404)
+    data = project_schema.dump(proy)
+    if data.get('user_id') != g.user.get('id'):
+        return custom_response({'error': 'permission denied'}, 400)
 
-#     try:
-#         data = blogpost_schema.load(req_data, partial=True)
-#     except ValidationError as err:
-#         return custom_response(err, 400)
+    try:
+        data = project_schema.load(req_data, partial=True)
+    except ValidationError as err:
+        return custom_response(err, 400)
 
-#     post.update(data)
-#     data = blogpost_schema.dump(post)
-#     return custom_response(data, 200)
+    proy.update(data)
+    data = project_schema.dump(proy)
+    return custom_response(data, 200)
 
 # @blogpost_api.route('/<int:blogpost_id>', methods=['DELETE'])
 # @Auth.auth_required

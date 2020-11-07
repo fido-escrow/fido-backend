@@ -32,7 +32,7 @@ class ProjectModel(db.Model):
     escrow = db.Column(db.Boolean)
     comision_paid = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    contracts = db.relationship('ContractModel', backref='projects', lazy=True)
+    contracts = db.relationship('ContractModel', backref='project', lazy=True)
     created_at = db.Column(db.DateTime)
     modified_at = db.Column(db.DateTime)
 

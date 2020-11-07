@@ -48,6 +48,11 @@ def create(project_id):
 @Auth.auth_required
 def upload(project_id):
     uploaded_file = request.files['file']
+    if uploaded_file.filename != '':
+        uploaded_file.save(os.path.join(temp_folder, uploaded_file.filename))
+#   vemos si sube a mifiel y nos regresa el id se guarda
+#   guardamos eese id en contract
+#   regresamos el data
     contract = ContractModel({})
     contract.name = uploaded_file.filename
     contract.project_id = project_id
@@ -57,12 +62,6 @@ def upload(project_id):
     contract.mifiel_id='121283657126321356123786152'
     contract.status = '0'
     contract.typo = '1'
-    
-    if uploaded_file.filename != '':
-        uploaded_file.save(os.path.join(temp_folder, uploaded_file.filename))
-#   vemos si sube a mifiel y nos regresa el id se guarda
-#   guardamos eese id en contract
-#   regresamos el data
     contract.save()
     data = contract_schema.dump(contract)
     

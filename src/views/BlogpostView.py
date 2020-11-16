@@ -84,7 +84,7 @@ def delete(blogpost_id):
         return custom_response({'error': 'post not found'}, 404)
     data = blogpost_schema.dump(post)
     if data.get('user_id') != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 400)
+        return custom_response({'error': 'permission denied'}, 300)
 
     post.delete()
     return custom_response({'message': 'deleted'}, 204)

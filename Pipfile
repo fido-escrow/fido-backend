@@ -19,6 +19,7 @@ gunicorn = "*"
 python-dotenv = "*"
 flask-cors = "*"
 mifiel = "*"
+paypalrestsdk = "*"
 
 [requires]
 python_version = "3.6"

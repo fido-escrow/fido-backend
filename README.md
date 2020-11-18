@@ -1,5 +1,5 @@
 ## Installation
-  - Install [Python](https://www.python.org/downloads/), [Pipenv](https://docs.pipenv.org/) and [Postgres](https://www.postgresql.org/) on your machine
+  - Install [Python](https://www.python.org/downloads/), [Pipenv](https:/.pipenv.org/) and [Postgres](https://www.postgresql.org/) on your machine
   - Clone the repository `$ git clone git@github.com:jerichoruz/fido-back.git`
   - Change into the directory `$ cd /fido-back`
   - Create the project virtual environment with `$ pipenv --three` command
@@ -11,6 +11,8 @@
       FLASK_PORT=5005
       DATABASE_URL=postgres://fido:fido@localhost:5432/fido
       JWT_SECRET_KEY=pass_salt_phrase
+      PAYPAL_ID=from paypal account
+      PAYPAL_SECRET=from paypal account
       ```
   - Create database fido
   - Due to a bad flask relation please Comment line 5 from UserModel before Migrate

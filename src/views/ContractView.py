@@ -1,10 +1,11 @@
 #/src/views/ContractView.py
-import os
-from flask import Flask, request, g, Blueprint, json, Response
+import os, requests
+from flask import Flask, request, g, Blueprint, json, Response, send_file
 from marshmallow import ValidationError
 from mifiel import Client, Document
 from ..shared.Authentication import Auth
 from ..models.ContractModel import ContractModel, ContractSchema
+from ..models.UserModel import UserModel
 
 app = Flask(__name__)
 contract_api = Blueprint('contract_api', __name__)
@@ -32,7 +33,7 @@ def get_all(project_id):
 def upload(project_id):
     user = UserModel.get_one_user(g.user.get('id'))
     if user.docs_paid < 1:
-        return custom_response({'error': 'You dont have any pad documents'}, 403)
+        return custom_response({'error': 'You dont have any paid documents'}, 400)
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
         uploaded_file.save(os.path.join(temp_folder, uploaded_file.filename))
@@ -40,7 +41,7 @@ def upload(project_id):
     try:
         mifieldocu = Document.create(client=client, signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
     except Exception as error:
-        return custom_response(err, 400)
+        return custom_response(error, 400)
     finally:
         os.remove(os.path.join(temp_folder, uploaded_file.filename))
     
@@ -57,7 +58,27 @@ def upload(project_id):
     user.docs_paid -= 1
     user.save()
     data = contract_schema.dump(contract)
-    return custom_response(data, 201)      
+    return custom_response(data, 201)
+
+@contract_api.route('/download/<int:contract_id>', methods=['GET'])
+def download(contract_id):
+    """
+    Download a contract  ##Si tiene id dfde mifiel se decarga sino se arma y se envíá
+    """
+    contract = ContractModel.get_one_contract(contract_id)
+    docname=''
+    if not contract:
+        return custom_response({'error': 'contract not found'}, 404)
+    if contract.mifiel_id :
+        try:
+            doc = Document.find(client,contract.mifiel_id)
+            docname = doc.file_file_name
+            doc.save_file(os.path.join(temp_folder,docname))
+            return send_file(os.path.join(temp_folder,docname), as_attachment=True)
+        except Exception as error:
+            return custom_response(error, 500)
+        finally:
+            os.remove(os.path.join(temp_folder,docname))
 
 def custom_response(res, status_code):
     """

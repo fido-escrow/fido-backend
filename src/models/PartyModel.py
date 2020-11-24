@@ -12,7 +12,7 @@ class PartyModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
-    apaterno = db.Column(db.String(128), nullable=False)
+    apaterno = db.Column(db.String(128))
     amaterno = db.Column(db.String(128))
     rfc = db.Column(db.String(128))
     moral = db.Column(db.Boolean)
@@ -27,6 +27,8 @@ class PartyModel(db.Model):
     typo = db.Column(db.Integer)
     email = db.Column(db.String(128), nullable=False)
     contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=False)
+    widget_id = db.Column(db.String(250))
+    signed = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
     modified_at = db.Column(db.DateTime)
 
@@ -47,6 +49,8 @@ class PartyModel(db.Model):
         self.typo = data.get('typo')
         self.email = data.get('email')
         self.contract_id = data.get('contract_id')
+        self.widget_id = data.get('widget_id')
+        self.signed = data.get('signed')
         self.created_at = datetime.datetime.utcnow()
         self.modified_at = datetime.datetime.utcnow()
 
@@ -81,7 +85,7 @@ class PartySchema(Schema):
     """
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
-    apaterno = fields.Str(required=True)
+    apaterno = fields.Str()
     amaterno = fields.Str()
     rfc = fields.Str()
     moral = fields.Bool()
@@ -96,5 +100,7 @@ class PartySchema(Schema):
     typo = fields.Int()
     email = fields.Email(required=True)
     contract_id = fields.Int(required=True)
+    widget_id = fields.Str()
+    signed = fields.Bool()
     created_at = fields.DateTime(dump_only=True)
     modified_at = fields.DateTime(dump_only=True)

@@ -1,15 +1,18 @@
 #/src/views/ContractView.py
 import os, requests
-from flask import Flask, request, g, Blueprint, json, Response, send_file
+from flask import Flask, request, g, Blueprint, json, Response, send_file, jsonify
 from marshmallow import ValidationError
 from mifiel import Client, Document
 from ..shared.Authentication import Auth
 from ..models.ContractModel import ContractModel, ContractSchema
 from ..models.UserModel import UserModel
+from ..models.PartyModel import PartyModel, PartySchema
+from ..shared.Mailing import Mailing
 
 app = Flask(__name__)
 contract_api = Blueprint('contract_api', __name__)
 contract_schema = ContractSchema()
+party_schema = PartySchema()
 temp_folder = "/fido/fido-backend/temp"
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
@@ -35,16 +38,19 @@ def upload(project_id):
     if user.docs_paid < 1:
         return custom_response({'error': 'You dont have any paid documents'}, 400)
     uploaded_file = request.files['file']
+    signatories = json.loads(request.form.get('json'))
+    app.logger.info('llega siquiera --------------#'+json.dumps(signatories))
     if uploaded_file.filename != '':
         uploaded_file.save(os.path.join(temp_folder, uploaded_file.filename))
-    signatories = []
+    else:
+        return custom_response({'error': 'No document'}, 400)
     try:
         mifieldocu = Document.create(client=client, signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
     except Exception as error:
         return custom_response(error, 400)
     finally:
         os.remove(os.path.join(temp_folder, uploaded_file.filename))
-    
+    signatories = mifieldocu.signers
     contract = ContractModel({})
     contract.name = uploaded_file.filename
     contract.project_id = project_id
@@ -52,9 +58,24 @@ def upload(project_id):
     contract.mifiel_signed=False
     contract.graph_signed=False
     contract.mifiel_id=mifieldocu.id
+    contract.widget_id=mifieldocu.widget_id
     contract.status = '0'
     contract.typo = '1'
     contract.save()
+    for p in signatories:
+        party = PartyModel({})
+        party.name = p['name']
+        party.email = p['email']
+        party.rfc = p['tax_id']
+        party.widget_id = p['widget_id']
+        party.contract_id = contract.id
+        party.save()
+        try:
+            app.logger.info('llego al')
+            Mailing.send_sign_invitation(user,contract,party)
+        except Exception as e:
+            app.logger.error(e)
+            
     user.docs_paid -= 1
     user.save()
     data = contract_schema.dump(contract)

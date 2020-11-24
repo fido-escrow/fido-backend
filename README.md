@@ -7,14 +7,28 @@
   - Install all required dependencies with `$ pipenv install`
   - Rename .env.sample to .env and edit variables
       ```
-      FLASK_ENV=development
-      FLASK_PORT=5005
-      DATABASE_URL=postgres://fido:fido@localhost:5432/fido
-      JWT_SECRET_KEY=pass_salt_phrase
-      PAYPAL_ID=from paypal account
-      PAYPAL_SECRET=from paypal account
+      FLASK_ENV=
+      FLASK_PORT=
+      DATABASE_URL=
+      JWT_SECRET_KEY=
+      FRONT_URL=
+      MIFIEL_APP_ID=
+      MIFIEL_APP_SECRET=
+      PAYPAL_ID=
+      PAYPAL_SECRET=
+      MAIL_SERVER=
+      MAIL_PORT=465
+      MAIL_USERNAME=
+      MAIL_PASSWORD=
       ```
   - Create database fido
+      ```
+      $ sudo su - postgres -c "createuser -s fido" 2> /dev/null || true
+      $ psql
+      # ALTER USER fido WITH ENCRYPTED PASSWORD 'fido';
+      # CREATE DATABASE fido WITH TEMPLATE template0;
+      # ALTER DATABASE fido OWNER TO fido;
+      ```
   - Due to a bad flask relation please Comment line 5 from UserModel before Migrate
       ```
       1 # src/models/UserModel.py

@@ -12,6 +12,7 @@ from .views.ProjectView import project_api as project_blueprint
 from .views.LayoutView import layout_api as layout_blueprint
 from .views.ContractView import contract_api as contract_blueprint
 from .views.PaymentView import payment_api as payment_blueprint
+from .views.PartyView import party_api as party_blueprint
 
 def create_app(env_name):
   """
@@ -37,6 +38,7 @@ def create_app(env_name):
   app.register_blueprint(layout_blueprint, url_prefix='/api/v1/layout')
   app.register_blueprint(contract_blueprint, url_prefix='/api/v1/contract')
   app.register_blueprint(payment_blueprint, url_prefix='/api/v1/payment')
+  app.register_blueprint(party_blueprint, url_prefix='/api/v1/party')
 
   @app.route('/')
   def index():

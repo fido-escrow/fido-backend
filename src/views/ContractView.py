@@ -39,7 +39,7 @@ def upload(project_id):
         return custom_response({'error': 'You dont have any paid documents'}, 400)
     uploaded_file = request.files['file']
     signatories = json.loads(request.form.get('json'))
-    app.logger.info('llega siquiera --------------#'+json.dumps(signatories))
+    app.logger.info('llega siquiera UPLOAD CONTRACT--------------#'+json.dumps(signatories))
     if uploaded_file.filename != '':
         uploaded_file.save(os.path.join(temp_folder, uploaded_file.filename))
     else:

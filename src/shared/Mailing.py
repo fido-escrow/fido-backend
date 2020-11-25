@@ -13,12 +13,26 @@ class Mailing():
     @staticmethod
     def send_sign_invitation(user,contract,party):
         try:
-            app.logger.info('llego la funcion    '+party.email)
-            msg = Message("[FIDO] Su Firma ha sido requerida",
+            app.logger.info('llego la funcion  invitation  '+party.email)
+            msg = Message("[FIDO] "+party.name+" Su Firma ha sido requerida",
             sender="app@fido.mx",
             recipients=[party.email])
             msg.body = 'Hola '+party.name+',\n para el contrato'+contract.name+'tu firma ha sido requerida en '+url+'/signature/'+party.widget_id
             msg.html = render_template('sign_invitation.html', name=party.name, sender=user.name, url=url,widget_id=party.widget_id,contract_name=contract.name)
+            mail.send(msg)
+        except Exception as e:
+            app.logger.error(e)
+            raise Exception(e)
+
+    @staticmethod
+    def send_sign_confirmation(user,contract,party):
+        try:
+            app.logger.info('llego la funcion  confirmation  '+user.email)
+            msg = Message("[FIDO] "+party.name+" ha firmado el documento",
+            sender="app@fido.mx",
+            recipients=[user.email])
+            msg.body = 'Hola '+user.name+',\n el contrato '+contract.name+' ha sido firmado con éxito por '+party.name
+            msg.html = render_template('sign_confirmation.html', name=user.name, sender=party.name, url=url, contract_name=contract.name)
             mail.send(msg)
         except Exception as e:
             app.logger.error(e)

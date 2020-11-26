@@ -71,9 +71,11 @@ class PartyModel(db.Model):
     @staticmethod
     def get_all_parties(contract_id):
         return PartyModel.query.filter_by(contract_id=contract_id).all()
+
     # @staticmethod
     # def get_all_blogposts():
     #     return BlogpostModel.query.all()
+    
     @staticmethod
     def get_one_party_widget(widget_id):
         return PartyModel.query.filter_by(widget_id=widget_id).first()

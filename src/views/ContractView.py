@@ -10,6 +10,7 @@ from ..models.PartyModel import PartyModel, PartySchema
 from ..shared.Mailing import Mailing
 
 app = Flask(__name__)
+burl = os.getenv('BACK_URL')
 contract_api = Blueprint('contract_api', __name__)
 contract_schema = ContractSchema()
 party_schema = PartySchema()
@@ -45,7 +46,9 @@ def upload(project_id):
     else:
         return custom_response({'error': 'No document'}, 400)
     try:
-        mifieldocu = Document.create(client=client, signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
+        curl=burl+contract_api.url_prefix+'/webhook'
+        app.logger.info('llega la url: '+curl)
+        mifieldocu = Document.create(client=client, callback_url=curl,signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
     except Exception as error:
         return custom_response(error, 400)
     finally:
@@ -80,6 +83,19 @@ def upload(project_id):
     user.save()
     data = contract_schema.dump(contract)
     return custom_response(data, 201)
+
+    @contract_api.route('/webhook', methods=['POST'])
+    def signed():
+        jdoc = request.get_json()
+        app.logger.info('llega siquiera WEBHOOK--------------#'+json.dumps(jdoc))
+        if jdoc.signed_by_all:
+            doc = Document.find(client,jdoc.id)
+            docname = doc.file_file_name.split('.')[0]
+            app.logger.info(docname)
+            doc.save_file_signed(os.path.join(temp_folder,docname+'.pdf'))
+            doc.save_xml(os.path.join(temp_folder,docname+'.xml'))
+        #mandar correo
+        return custom_response({'success' : True}, 200)
 
 @contract_api.route('/download/<int:contract_id>', methods=['GET'])
 def download(contract_id):

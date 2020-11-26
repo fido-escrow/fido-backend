@@ -54,7 +54,11 @@ class ContractModel(db.Model):
     @staticmethod
     def get_all_contracts(project_id):
         return ContractModel.query.filter_by(project_id=project_id).all()
-  
+    
+    @staticmethod
+    def get_one_contract_mifiel(mifiel_id):
+        return ContractModel.query.filter_by(mifiel_id=mifiel_id).first()
+
     @staticmethod
     def get_one_contract(id):
         return ContractModel.query.get(id)

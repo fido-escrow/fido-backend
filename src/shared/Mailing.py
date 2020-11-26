@@ -37,3 +37,21 @@ class Mailing():
         except Exception as e:
             app.logger.error(e)
             raise Exception(e)
+    @staticmethod
+    def send_sign_final(email,contract,pdf,xml):
+        try:
+            app.logger.info('se envió a   '+email)
+            app.logger.info('llego la funcion  confirmation  '+email)
+            msg = Message("[FIDO] todos los participantes han firmado el documento",
+            sender="app@fido.mx",
+            recipients=[email])
+            msg.body = 'Hola ,\n el contrato '+contract+' ha sido firmado con éxito por todos los participantes, FIDO no guarda documentos por lo que es importante que guardes los documentos adjuntos.'
+            msg.html = render_template('sign_final.html', contract_name=contract)
+            with app.open_resource(pdf) as fp:   
+                msg.attach(contract+'_signed.pdf', "application/pdf", fp.read())
+            with app.open_resource(xml) as fp:   
+                msg.attach(contract+'.xml', "application/xml", fp.read())
+            mail.send(msg)
+        except Exception as e:
+            app.logger.error(e)
+            raise Exception(e)

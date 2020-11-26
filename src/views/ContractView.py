@@ -1,11 +1,12 @@
 #/src/views/ContractView.py
 import os, requests
-from flask import Flask, request, g, Blueprint, json, Response, send_file, jsonify
+from flask import Flask, request, g, Blueprint, json, Response, send_file, jsonify, url_for
 from marshmallow import ValidationError
 from mifiel import Client, Document
 from ..shared.Authentication import Auth
 from ..models.ContractModel import ContractModel, ContractSchema
 from ..models.UserModel import UserModel
+from ..models.ProjectModel import ProjectModel
 from ..models.PartyModel import PartyModel, PartySchema
 from ..shared.Mailing import Mailing
 
@@ -46,9 +47,9 @@ def upload(project_id):
     else:
         return custom_response({'error': 'No document'}, 400)
     try:
-        curl=burl+contract_api.url_prefix+'/webhook'
+        curl=burl+'/api/v1/contract/webhook'
         app.logger.info('llega la url: '+curl)
-        mifieldocu = Document.create(client=client, callback_url=curl,signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
+        mifieldocu = Document.create(client=client, callback_url=curl, signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
     except Exception as error:
         return custom_response(error, 400)
     finally:
@@ -74,7 +75,6 @@ def upload(project_id):
         party.contract_id = contract.id
         party.save()
         try:
-            app.logger.info('llego al')
             Mailing.send_sign_invitation(user,contract,party)
         except Exception as e:
             app.logger.error(e)
@@ -84,20 +84,38 @@ def upload(project_id):
     data = contract_schema.dump(contract)
     return custom_response(data, 201)
 
-    @contract_api.route('/webhook', methods=['POST'])
-    def signed():
-        jdoc = request.get_json()
-        app.logger.info('llega siquiera WEBHOOK--------------#'+json.dumps(jdoc))
-        if jdoc.signed_by_all:
-            doc = Document.find(client,jdoc.id)
-            docname = doc.file_file_name.split('.')[0]
-            app.logger.info(docname)
-            doc.save_file_signed(os.path.join(temp_folder,docname+'.pdf'))
-            doc.save_xml(os.path.join(temp_folder,docname+'.xml'))
-        #mandar correo
-        return custom_response({'success' : True}, 200)
+@contract_api.route('/webhook', methods=['POST'])
+def webhook():
+    jdoc = request.get_json()
+    app.logger.info('llega siquiera WEBHOOK--------------#'+json.dumps(jdoc))
+    if jdoc['signed_by_all']:
+        doc = Document.find(client,jdoc['id'])
+        docname = doc.file_file_name.split('.')[0]
+        mpdf=os.path.join(temp_folder,docname+'_signed.pdf')
+        mxml=os.path.join(temp_folder,docname+'.xml')
+        doc.save_file_signed(mpdf)
+        doc.save_xml(mxml)
+        app.logger.info('archivos estan en: pdf----'+mpdf+'   xml---'+mxml)
+        contract = ContractModel.get_one_contract_mifiel(doc.id)
+        contract.mifiel_signed=True
+        contract.save()
+        project = ProjectModel.get_one_project(contract.project_id)
+        user = UserModel.get_one_user(project.user_id)
+        try:
+            Mailing.send_sign_final(user.email,contract.name,mpdf,mxml)
+        except Exception as e:
+            app.logger.error(e)
+        for p in contract.parties:
+            try:
+                Mailing.send_sign_final(p.email,contract.name,mpdf,mxml)
+            except Exception as e:
+                app.logger.error(e)
+        os.remove(mpdf)
+        os.remove(mxml)
+    return custom_response({'success' : True}, 200)
 
 @contract_api.route('/download/<int:contract_id>', methods=['GET'])
+@Auth.auth_required
 def download(contract_id):
     """
     Download a contract  ##Si tiene id dfde mifiel se decarga sino se arma y se envíá

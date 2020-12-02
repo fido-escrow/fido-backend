@@ -63,8 +63,8 @@ def upload(project_id):
     contract.graph_signed=False
     contract.mifiel_id=mifieldocu.id
     contract.widget_id=mifieldocu.widget_id
-    contract.status = '0'
-    contract.typo = '1'
+    contract.status = 2
+    contract.typo = 1
     contract.save()
     for p in signatories:
         party = PartyModel({})
@@ -123,17 +123,38 @@ def download(contract_id):
     contract = ContractModel.get_one_contract(contract_id)
     docname=''
     if not contract:
-        return custom_response({'error': 'contract not found'}, 404)
+        return custom_response({'error': 'contract not found'}, 400)
     if contract.mifiel_id :
         try:
+            #falta revisar si ya está firmado para decargarse con todas las firmas el xml y la representacion grafica
             doc = Document.find(client,contract.mifiel_id)
             docname = doc.file_file_name
             doc.save_file(os.path.join(temp_folder,docname))
+            #zippear y descargar
             return send_file(os.path.join(temp_folder,docname), as_attachment=True)
         except Exception as error:
             return custom_response(error, 500)
         finally:
             os.remove(os.path.join(temp_folder,docname))
+    #else: falta revisar si se arma y se convierte a dfecarga
+
+@contract_api.route('/reminder/<int:contract_id>', methods=['GET'])
+@Auth.auth_required
+def reminder(contract_id):
+    user = UserModel.get_one_user(g.user.get('id'))
+    contract = ContractModel.get_one_contract(contract_id)
+    if not contract: 
+        return custom_response({'error': 'contract not found or  request data empty'}, 400)
+    if contract.mifiel_signed :
+        return custom_response({'error': 'The document is already signed by all'}, 400)
+    if contract.parties:
+        for party in contract.parties:
+            if party.widget_id and not party.signed:
+                try:
+                    Mailing.send_sign_invitation(user,contract,party)
+                except Exception as e:
+                    app.logger.error(e)
+    return custom_response({'succes': 'True'}, 200)
 
 def custom_response(res, status_code):
     """

@@ -61,7 +61,9 @@ def signers(contract_id):
         try:
             #mifieldocu = Document.find(client,contract.mifiel_id)
             #actualizar firmantes 
-            # mifieldocu.signers
+            # mifieldocu.signers = mifieldocu.signers + signatories
+            # hacer update en mifiel
+            # mifieldocu.update()  
             # for p in mifieldocu.signers:
             #     party = PartyModel({})
             #     party.name = p['name']

@@ -33,6 +33,33 @@ def get_all(project_id):
     data = contract_schema.dump(contracts, many=True)
     return custom_response(data, 200)
 
+
+   
+@contract_api.route('/<int:project_id>', methods=['POST'])
+@Auth.auth_required
+def create(project_id):
+    """
+    Create Contract from template Function
+    """
+    req_data = request.get_json()
+    app.logger.info('llega siquiera blog--------'+str(project_id)+'------#'+json.dumps(req_data))
+    
+    # craer contrato y devolverlo con oparrties q son firamntes
+    return custom_response(req_data, 201)
+
+@contract_api.route('/sign/<int:contract_id>', methods=['GET'])
+@Auth.auth_required
+def sign(contract_id):
+    """
+    Send to sign mifiel Contract from template Function
+    """
+    contract = ContractModel.get_one_contract(contract_id)
+    contract.status = 2
+    contract.save()
+    data = contract_schema.dump(contract)
+    #mandar a firma etc
+    return custom_response(data, 200)    
+
 @contract_api.route('/upload/<int:project_id>', methods=['POST'])
 @Auth.auth_required
 def upload(project_id):
@@ -41,6 +68,9 @@ def upload(project_id):
         return custom_response({'error': 'You dont have any paid documents'}, 400)
     uploaded_file = request.files['file']
     signatories = json.loads(request.form.get('json'))
+    for p in signatories:
+        p['tax_id'] = p['rfc']
+        del p['rfc']
     app.logger.info('llega siquiera UPLOAD CONTRACT--------------#'+json.dumps(signatories))
     if uploaded_file.filename != '':
         uploaded_file.save(os.path.join(temp_folder, uploaded_file.filename))
@@ -54,7 +84,7 @@ def upload(project_id):
         return custom_response(error, 400)
     finally:
         os.remove(os.path.join(temp_folder, uploaded_file.filename))
-    signatories = mifieldocu.signers
+    signers = mifieldocu.signers
     contract = ContractModel({})
     contract.name = uploaded_file.filename
     contract.project_id = project_id
@@ -63,10 +93,10 @@ def upload(project_id):
     contract.graph_signed=False
     contract.mifiel_id=mifieldocu.id
     contract.widget_id=mifieldocu.widget_id
-    contract.status = 2
+    contract.status = 3
     contract.typo = 1
     contract.save()
-    for p in signatories:
+    for p in signers:
         party = PartyModel({})
         party.name = p['name']
         party.email = p['email']

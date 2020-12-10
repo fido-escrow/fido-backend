@@ -241,7 +241,7 @@ def signers(contract_id):
     """
     user = UserModel.get_one_user(g.user.get('id'))
     signatories = request.get_json()
-    app.logger.info('llega siquiera UPLOAD CONTRACT--------------#'+json.dumps(signatories))    
+    app.logger.info('llega siquiera contract SIGNERS--------------#'+json.dumps(signatories))    
     contract = ContractModel.get_one_contract(contract_id)
     if not contract:
         return custom_response({'error': 'contract not found or  request data empty'}, 400)

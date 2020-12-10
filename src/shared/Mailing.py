@@ -37,6 +37,21 @@ class Mailing():
         except Exception as e:
             app.logger.error(e)
             raise Exception(e)
+
+    @staticmethod
+    def send_delete_doc(user,contract,party):
+        try:
+            app.logger.info('llego la funcion  delete  '+user.email)
+            msg = Message("[FIDO] "+user.name+" ha eliminado el documento",
+            sender="app@fido.mx",
+            recipients=[party.email])
+            msg.body = 'Hola '+party.name+',\n el contrato '+contract.name+' ha sido elminado por '+party.name+'. \n  No es necesaria ninguna acción de tu parte.'
+            msg.html = render_template('delete_doc.html', name=party.name, sender=user.name, contract_name=contract.name)
+            mail.send(msg)
+        except Exception as e:
+            app.logger.error(e)
+            raise Exception(e)
+
     @staticmethod
     def send_sign_final(email,contract,pdf,xml):
         try:

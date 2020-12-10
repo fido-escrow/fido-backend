@@ -20,7 +20,7 @@ class ContractModel(db.Model):
     graph_signed = db.Column(db.Text)
     status = db.Column(db.Integer)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
-    parties = db.relationship('PartyModel', backref='contract', lazy=True)
+    parties = db.relationship('PartyModel', cascade="all,delete", backref='contract', lazy=True)
     typo = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
     modified_at = db.Column(db.DateTime)

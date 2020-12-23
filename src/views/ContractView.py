@@ -30,6 +30,9 @@ def get_all(project_id):
     """
     Get All contracts
     """
+    project = ProjectModel.get_one_project(project_id)
+    if project.user_id != g.user.get('id'):
+        return custom_response({'error': 'permission denied'}, 300)
     contracts = ContractModel.get_all_contracts(project_id)
     data = contract_schema.dump(contracts, many=True)
     return custom_response(data, 200)
@@ -42,6 +45,9 @@ def create(project_id):
     """
     Create Contract from template Function
     """
+    project = ProjectModel.get_one_project(project_id)
+    if project.user_id != g.user.get('id'):
+        return custom_response({'error': 'permission denied'}, 300)
     req_data = request.get_json()
     app.logger.info('llega siquiera blog--------'+str(project_id)+'------#'+json.dumps(req_data))
     
@@ -55,6 +61,9 @@ def sign(contract_id):
     Send to sign mifiel Contract from template Function
     """
     contract = ContractModel.get_one_contract(contract_id)
+    project = ProjectModel.get_one_project(contract.project_id)
+    if project.user_id != g.user.get('id'):
+        return custom_response({'error': 'permission denied'}, 300)
     contract.status = 2
     contract.save()
     data = contract_schema.dump(contract)
@@ -65,6 +74,9 @@ def sign(contract_id):
 @Auth.auth_required
 def upload(project_id):
     user = UserModel.get_one_user(g.user.get('id'))
+    project = ProjectModel.get_one_project(project_id)
+    if project.user_id != g.user.get('id'):
+        return custom_response({'error': 'permission denied'}, 300)
     if user.docs_paid < 1:
         return custom_response({'error': 'You dont have any paid documents'}, 400)
     uploaded_file = request.files['file']
@@ -79,7 +91,7 @@ def upload(project_id):
         return custom_response({'error': 'No document'}, 400)
     try:
         curl=burl+'/api/v1/contract/webhook'
-        mifieldocu = Document.create(client=client, callback_url=curl, signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
+        mifieldocu = Document.create(client=client, callback_url=curl, send_mail=False, send_invites=False, signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
     except Exception as error:
         return custom_response(error, 400)
     finally:
@@ -151,6 +163,9 @@ def download(contract_id):
     Download a contract pdf
     """
     contract = ContractModel.get_one_contract(contract_id)
+    project = ProjectModel.get_one_project(contract.project_id)
+    if project.user_id != g.user.get('id'):
+        return custom_response({'error': 'permission denied'}, 300)
     docname=''
     if not contract:
         return custom_response({'error': 'contract not found'}, 400)
@@ -220,6 +235,9 @@ def delete(contract_id):
 def reminder(contract_id):
     user = UserModel.get_one_user(g.user.get('id'))
     contract = ContractModel.get_one_contract(contract_id)
+    project = ProjectModel.get_one_project(contract.project_id)
+    if project.user_id != g.user.get('id'):
+        return custom_response({'error': 'permission denied'}, 300)
     if not contract: 
         return custom_response({'error': 'contract not found or  request data empty'}, 400)
     if contract.mifiel_signed :
@@ -243,6 +261,9 @@ def signers(contract_id):
     signatories = request.get_json()
     app.logger.info('llega siquiera contract SIGNERS--------------#'+json.dumps(signatories))    
     contract = ContractModel.get_one_contract(contract_id)
+    project = ProjectModel.get_one_project(contract.project_id)
+    if project.user_id != g.user.get('id'):
+        return custom_response({'error': 'permission denied'}, 300)
     if not contract:
         return custom_response({'error': 'contract not found or  request data empty'}, 400)
     if contract.status != 3:

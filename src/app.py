@@ -45,7 +45,7 @@ def create_app(env_name):
     """
     example endpoint
     """
-    app.logger.info('Mostrando los posts del blog')
+    app.logger.info('Levantando workers con éxito')
     return 'Felicitaciones! Has instalado correctamente el backend FIDO'
 
   return app

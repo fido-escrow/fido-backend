@@ -149,7 +149,7 @@ def webhook():
         except Exception as e:
             app.logger.error(e)
         for p in contract.parties:
-            if not p.signed
+            if not p.signed:
                 p.signed=True
                 p.save()
             try:

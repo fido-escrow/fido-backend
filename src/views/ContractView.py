@@ -91,7 +91,7 @@ def upload(project_id):
         return custom_response({'error': 'No document'}, 400)
     try:
         curl=burl+'/api/v1/contract/webhook'
-        mifieldocu = Document.create(client=client, callback_url=curl, send_mail=False, send_invites=False, signatories=signatories, file=os.path.join(temp_folder, uploaded_file.filename))
+        mifieldocu = Document.create(client=client, signatories=signatories, send_mail=0, send_invites=0, callback_url=curl, file=os.path.join(temp_folder, uploaded_file.filename))
     except Exception as error:
         return custom_response(error, 400)
     finally:
@@ -108,6 +108,7 @@ def upload(project_id):
     contract.status = 3
     contract.typo = 1
     contract.save()
+    app.logger.info('signers que llegan de MIFIEL >>>>>>>>>>>> '+str(mifieldocu.signers))
     for p in signers:
         party = PartyModel({})
         party.name = p['name']
@@ -129,11 +130,11 @@ def upload(project_id):
 @contract_api.route('/webhook', methods=['POST'])
 def webhook():
     jdoc = request.get_json()
-    app.logger.info('llega siquiera WEBHOOK  MIFIEL >Z>>>>>>>>>>>>>>>>>>>>>>>>  '+json.dumps(jdoc))
     if jdoc['signed_by_all']:
-        doc = Document.find(client,jdoc['id'])
+        doc = Document.find(client,jdoc[         'id'])
+        app.logger.info('propiedad signed by all  >>>>>>>>>>>>>>>>>>>>>>>>'+str(doc.signed_by_all))
         docname = doc.file_file_name.split('.')[0]
-        mpdf=os.path.join(temp_folder,docname+'_signed.pdf')
+        mpdf=os.path.join(temp_folder,docname+'_mnnbnb      1   signed.pdf')
         mxml=os.path.join(temp_folder,docname+'.xml')
         doc.save_file_signed(mpdf)
         doc.save_xml(mxml)
@@ -148,6 +149,9 @@ def webhook():
         except Exception as e:
             app.logger.error(e)
         for p in contract.parties:
+            if not p.signed
+                p.signed=True
+                p.save()
             try:
                 Mailing.send_sign_final(p.email,contract.name,mpdf,mxml)
             except Exception as e:

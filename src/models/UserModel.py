@@ -119,7 +119,7 @@ class UserSchema(Schema):
     amaterno = fields.Str()
     rfc = fields.Str()
     avatar = fields.Str()
-    phone = fields.Number(allow_none=True, allow_blank=True)
+    phone = fields.Number()
     moral = fields.Bool()
     admin = fields.Bool()
     tokenfg = fields.Str()

@@ -32,7 +32,7 @@ def paypal_create():
 
     if quantity < 1 :
         return custom_response('Quantity must be greater tnan zero.', 400)
-    total = 99 * quantity
+    total = 100 * quantity
     app.logger.info('TOTAL DSE LA CUENTA#-------------'+str(total))
     payment = paypalrestsdk.Payment({
         "intent": "sale",
@@ -44,9 +44,9 @@ def paypal_create():
         "transactions": [{
             "item_list": {
                 "items": [{
-                    "name": "Documento PDF a firma",
-                    "sku": "MIFIEL_PDF_01",
-                    "price": "99",
+                    "name": "Firmado Digital",
+                    "sku": "FIEL_PDF_01",
+                    "price": "100",
                     "currency": "MXN",
                     "quantity": quantity}]},
             "amount": {

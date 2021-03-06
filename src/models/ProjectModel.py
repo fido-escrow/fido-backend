@@ -29,7 +29,7 @@ class ProjectModel(db.Model):
     typo = db.Column(db.Integer)
     due_date = db.Column(db.DateTime)
     shared_comision = db.Column(db.Float())
-    escrow = db.Column(db.Boolean)
+    escrow = db.Column(db.Boolean, default=False)
     comision_paid = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     contracts = db.relationship('ContractModel', backref='project', lazy=True)

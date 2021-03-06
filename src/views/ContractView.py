@@ -32,13 +32,12 @@ def get_all(project_id):
     """
     project = ProjectModel.get_one_project(project_id)
     if project.user_id != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 300)
+        return custom_response({'error': 'permission denied'}, 403)
     contracts = ContractModel.get_all_contracts(project_id)
     data = contract_schema.dump(contracts, many=True)
     return custom_response(data, 200)
 
 
-   
 @contract_api.route('/<int:project_id>', methods=['POST'])
 @Auth.auth_required
 def create(project_id):
@@ -47,7 +46,7 @@ def create(project_id):
     """
     project = ProjectModel.get_one_project(project_id)
     if project.user_id != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 300)
+        return custom_response({'error': 'permission denied'}, 403)
     req_data = request.get_json()
     app.logger.info('llega siquiera blog--------'+str(project_id)+'------#'+json.dumps(req_data))
     
@@ -63,7 +62,7 @@ def sign(contract_id):
     contract = ContractModel.get_one_contract(contract_id)
     project = ProjectModel.get_one_project(contract.project_id)
     if project.user_id != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 300)
+        return custom_response({'error': 'permission denied'}, 403)
     contract.status = 2
     contract.save()
     data = contract_schema.dump(contract)
@@ -76,7 +75,7 @@ def upload(project_id):
     user = UserModel.get_one_user(g.user.get('id'))
     project = ProjectModel.get_one_project(project_id)
     if project.user_id != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 300)
+        return custom_response({'error': 'permission denied'}, 403)
     if user.docs_paid < 1:
         return custom_response({'error': 'You dont have any paid documents'}, 400)
     uploaded_file = request.files['file']
@@ -92,7 +91,7 @@ def upload(project_id):
     try:
         curl=burl+'/api/v1/contract/webhook'
         mifieldocu = Document.create(client=client, signatories=signatories, send_mail=0, send_invites=0, callback_url=curl, file=os.path.join(temp_folder, uploaded_file.filename))
-    except Exception as error:
+    except Exception as error: #cambiar po un http error exception
         return custom_response(error, 400)
     finally:
         os.remove(os.path.join(temp_folder, uploaded_file.filename))
@@ -169,7 +168,7 @@ def download(contract_id):
     contract = ContractModel.get_one_contract(contract_id)
     project = ProjectModel.get_one_project(contract.project_id)
     if project.user_id != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 300)
+        return custom_response({'error': 'permission denied'}, 403)
     docname=''
     if not contract:
         return custom_response({'error': 'contract not found'}, 400)
@@ -218,7 +217,7 @@ def delete(contract_id):
         return custom_response({'error': 'contract not found'}, 404)
     #agregar esta validacion en todos los q pidan id de contrato
     if project.user_id != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 300)
+        return custom_response({'error': 'permission denied'}, 403)
     if contract.mifiel_signed :
         return custom_response({'error': 'The document is already signed by all, it is not posible to eliminate'}, 400)
     if contract.mifiel_id:
@@ -241,7 +240,7 @@ def reminder(contract_id):
     contract = ContractModel.get_one_contract(contract_id)
     project = ProjectModel.get_one_project(contract.project_id)
     if project.user_id != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 300)
+        return custom_response({'error': 'permission denied'}, 403)
     if not contract: 
         return custom_response({'error': 'contract not found or  request data empty'}, 400)
     if contract.mifiel_signed :
@@ -267,7 +266,7 @@ def signers(contract_id):
     contract = ContractModel.get_one_contract(contract_id)
     project = ProjectModel.get_one_project(contract.project_id)
     if project.user_id != g.user.get('id'):
-        return custom_response({'error': 'permission denied'}, 300)
+        return custom_response({'error': 'permission denied'}, 403)
     if not contract:
         return custom_response({'error': 'contract not found or  request data empty'}, 400)
     if contract.status != 3:

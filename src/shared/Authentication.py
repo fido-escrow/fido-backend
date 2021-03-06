@@ -2,11 +2,12 @@
 import jwt
 import os
 import datetime
-from flask import json, Response, request, g
+from flask import Flask, json, Response, request, g
+from itsdangerous import URLSafeTimedSerializer
 from functools import wraps
 from ..models.UserModel import UserModel
 
-
+app = Flask(__name__)
 class Auth():
     """
     Auth Class
@@ -50,6 +51,15 @@ class Auth():
         except jwt.InvalidTokenError:
             re['error'] = {'message': 'Invalid token, please try again with a new token'}
             return re
+
+    def generate_confirmation_email_token(email):
+        serializer = URLSafeTimedSerializer(os.getenv('JWT_SECRET_KEY'))
+        return serializer.dumps(email, salt="activate")
+
+    def confirm_email_token(token, expiration=86400):
+        serializer = URLSafeTimedSerializer(os.getenv('JWT_SECRET_KEY'))
+        email = serializer.loads(token, salt="activate", max_age=expiration)
+        return email
 
     #decorator
     @staticmethod

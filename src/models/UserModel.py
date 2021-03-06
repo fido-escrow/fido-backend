@@ -16,9 +16,11 @@ class UserModel(db.Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
-    apaterno = db.Column(db.String(128), nullable=False)
+    name = db.Column(db.String(128))
+    apaterno = db.Column(db.String(128))
     amaterno = db.Column(db.String(128))
+    confirmed = db.Column(db.Boolean, default=False)
+    email_token = db.Column(db.String(250))
     rfc = db.Column(db.String(128))
     avatar = db.Column(db.Text)
     phone = db.Column(db.Numeric(14,0))
@@ -67,6 +69,8 @@ class UserModel(db.Model):
         self.cp = data.get('cp')
         self.email = data.get('email')
         self.docs_paid = data.get('docs_paid')
+        self.confirmed = data.get('confirmed')
+        self.email_token = data.get('email_token')
         self.typo = data.get('typo')
         self.password = self.__generate_hash(data.get('password'))
         self.created_at = datetime.datetime.utcnow()
@@ -114,8 +118,8 @@ class UserSchema(Schema):
     User Schema
     """
     id = fields.Int(dump_only=True)
-    name = fields.Str(required=True)
-    apaterno = fields.Str(required=True)
+    name = fields.Str()
+    apaterno = fields.Str()
     amaterno = fields.Str()
     rfc = fields.Str()
     avatar = fields.Str()

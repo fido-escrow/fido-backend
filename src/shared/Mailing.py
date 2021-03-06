@@ -6,6 +6,8 @@ from ..app import mail
 
 app = Flask(__name__)
 url = os.getenv('FRONT_URL')
+urlb = os.getenv('BACK_URL')
+
 class Mailing():
     """
     Mail Class
@@ -55,8 +57,6 @@ class Mailing():
     @staticmethod
     def send_sign_final(email,contract,pdf,xml):
         try:
-            app.logger.info('se envió a   '+email)
-            app.logger.info('llego la funcion  confirmation  '+email)
             msg = Message("[FIDO] todos los participantes han firmado el documento",
             sender="app@fido.mx",
             recipients=[email])
@@ -70,3 +70,18 @@ class Mailing():
         except Exception as e:
             app.logger.error(e)
             raise Exception(e)
+
+    @staticmethod
+    def send_apply_escrow(user,project):
+        try:
+            app.logger.info('llego la funcion  escrow ')
+            msg = Message("[FIDO] Solicitud de escrow",
+            sender="app@fido.mx",
+            recipients=['hola@fido.mx','nacho@fido.mx'])
+            msg.body = 'Hola admin el usuario '+user.name+' ha solicitado escrow en el proyecto '+project.name+' contactar al mail: '+user.mail+' o altelefono: '+ user.phone
+            msg.html = render_template('apply_escrow.html', user=user.name, project=project.name, mail=user.mail, phone=user.phone)
+            mail.send(msg)
+        except Exception as e:
+            app.logger.error(e)
+            raise Exception(e)
+    

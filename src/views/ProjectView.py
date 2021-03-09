@@ -84,7 +84,7 @@ def escrow(project_id):
         return custom_response({'error': 'project not found'}, 404)
     if project.user_id != g.user.get('id'):
         return custom_response({'error': 'permission denied'}, 403)
-    
+
     user = UserModel.get_one_user(g.user.get('id'))
     user.update(data)
     proy.escrow=True
@@ -93,7 +93,7 @@ def escrow(project_id):
     try:
         Mailing.send_apply_escrow(user,proy)
     except Exception as e:
-        return custom_response({'error': 'Correo no enviado, por favor manda un correo a hola@fido.mx con tu nombre, usuario y teléfono, enseguida nosotros te contactámos ASAP. Atte. FIDO.'}, 400)
+        return custom_response({'error': 'Correo no enviado, por favor manda un correo a hola@fido.mx con tu nombre, usuario y teléfono, enseguida nosotros te contactámos. Atte. FIDO.'}, 400)
 
     return custom_response("success", 200)
 

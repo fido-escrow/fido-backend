@@ -1,0 +1,17 @@
+[Unit]
+Description=Gunicorn instance to serve fido
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/fido/fido-backend
+#sandbox
+Environment="PATH=/root/.local/share/virtualenvs/fido-backend-HNYRlCJK/bin/"
+ExecStart= /root/.local/share/virtualenvs/fido-backend-HNYRlCJK/bin/gunicorn --workers 2 --bind unix:/fido/fido.sock -m 007 wsgi:app
+#prod
+#Environment="PATH=/root/.local/share/virtualenvs/fido-backend-HNYRlCJK/bin/"
+#ExecStart= /root/.local/share/virtualenvs/fido-backend-HNYRlCJK/bin/gunicorn --workers 2 --bind unix:/fido/fido.sock -m 007 wsgi:app
+#ExecStart= /root/.local/share/virtualenvs/fido-backend-HNYRlCJK/bin/gunicorn --workers 2 --bind 0.0.0.0:5000 wsgi:app
+[Install]
+WantedBy=multi-user.target  

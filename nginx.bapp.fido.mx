@@ -1,0 +1,29 @@
+server {
+        server_name bapp.fido.mx;
+
+        location / {
+            include proxy_params;
+            proxy_pass http://unix:/fido/fido.sock;
+        }
+        
+        listen [::]:443 ssl ipv6only=on; # managed by Certbot
+        listen 443 ssl; # managed by Certbot
+        ssl_certificate /etc/letsencrypt/live/app.fido.mx/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /etc/letsencrypt/live/app.fido.mx/privkey.pem; # managed by Certbot
+        include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+server {
+    if ($host = bapp.fido.mx) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name bapp.fido.mx;
+    return 404; # managed by Certbot
+}

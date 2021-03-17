@@ -72,6 +72,20 @@ class Mailing():
             raise Exception(e)
 
     @staticmethod
+    def send_email_confirmation(email, token):
+        try:
+            app.logger.info('llego la funcion  confirmar mail ')
+            msg = Message("[FIDO] Confirmación de email",
+            sender="app@fido.mx",
+            recipients=[email])
+            msg.body = 'Hola, '+email+' para terminar tu registro copia y pega la siguiente liga en tu navegador web: '+url+'/user/confirm/'+token
+            msg.html = render_template('email_confirmation.html', name=email, url=url, token=token)
+            mail.send(msg)
+        except Exception as e:
+            app.logger.error(e)
+            raise Exception(e)
+
+    @staticmethod
     def send_apply_escrow(user,project):
         try:
             app.logger.info('llego la funcion  escrow ')

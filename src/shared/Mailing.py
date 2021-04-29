@@ -92,8 +92,8 @@ class Mailing():
             msg = Message("[FIDO] Solicitud de escrow",
             sender="app@fido.mx",
             recipients=['hola@fido.mx','nacho@fido.mx'])
-            msg.body = 'Hola admin el usuario '+user.name+' ha solicitado escrow en el proyecto '+project.name+' contactar al mail: '+user.mail+' o altelefono: '+ user.phone
-            msg.html = render_template('apply_escrow.html', user=user.name, project=project.name, mail=user.mail, phone=user.phone)
+            msg.body = 'Hola admin el usuario '+user.name+' ha solicitado escrow en el proyecto '+project.name+' contactar al mail: '+user.email+' o altelefono: '+ str(user.phone)
+            msg.html = render_template('apply_escrow.html', user=user.name, project=project.name, mail=user.email, phone=str(user.phone))
             mail.send(msg)
         except Exception as e:
             app.logger.error(e)

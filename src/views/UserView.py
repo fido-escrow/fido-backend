@@ -37,7 +37,7 @@ def create():
         Mailing.send_email_confirmation(user.email,user.email_token)
     except Exception as e:
         app.logger.error(e)
-    return custom_response({'succes': 'Su cuenta ha sido creda con éxito'}, 201)
+    return custom_response({'succes': 'Su cuenta ha sido creada con éxito'}, 201)
 
 @user_api.route('/confirm/<token>', methods=['GET'])
 def confirm(token):

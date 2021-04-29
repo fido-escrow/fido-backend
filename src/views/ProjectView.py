@@ -74,6 +74,7 @@ def escrow(project_id):
     """
     Escrow A project
     """
+    denyEscrow=False
     req_data = request.get_json()
     try:
         data = user_schema.load(req_data, partial=True)
@@ -82,13 +83,21 @@ def escrow(project_id):
     proy = ProjectModel.get_one_project(project_id)
     if not proy:
         return custom_response({'error': 'project not found'}, 404)
-    if project.user_id != g.user.get('id'):
+    if proy.user_id != g.user.get('id'):
         return custom_response({'error': 'permission denied'}, 403)
+    
+    contracts = ContractModel.get_all_contracts(proy.id)
+    for contract in contracts
+        if not contract.signed_by_all:
+            denyEscrow = True
+
+    if denyEscrow:
+        return custom_response({'error': 'All contracts must be signed by all to apply for an escrow.' }, 403)      
 
     user = UserModel.get_one_user(g.user.get('id'))
     user.update(data)
     proy.escrow=True
-    proy.update()
+    proy.save()
 
     try:
         Mailing.send_apply_escrow(user,proy)
@@ -109,7 +118,7 @@ def delete(project_id):
     if not proy:
         return custom_response({'error': 'project not found'}, 404)
 
-    if data.get('user_id') != g.user.get('id'):
+    if proy.user_id != g.user.get('id'):
         return custom_response({'error': 'permission denied'}, 403)
     
     contracts = ContractModel.get_all_contracts(proy.id)

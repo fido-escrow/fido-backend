@@ -32,7 +32,7 @@ def paypal_create():
 
     if quantity < 1 :
         return custom_response('Quantity must be greater tnan zero.', 400)
-    total = 100 * quantity
+    total = 58 * quantity
     app.logger.info('TOTAL DSE LA CUENTA#-------------'+str(total))
     payment = paypalrestsdk.Payment({
         "intent": "sale",

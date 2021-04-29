@@ -95,6 +95,7 @@ def upload(project_id):
         return custom_response(error, 400)
     finally:
         os.remove(os.path.join(temp_folder, uploaded_file.filename))
+    app.logger.info('signers que llegan de MIFIEL >>>>>>>>>>>> '+str(mifieldocu.response.__dict__))
     signers = mifieldocu.signers
     contract = ContractModel({})
     contract.name = uploaded_file.filename
@@ -103,7 +104,6 @@ def upload(project_id):
     contract.mifiel_signed=False
     contract.graph_signed=False
     contract.mifiel_id=mifieldocu.id
-    contract.widget_id=mifieldocu.widget_id
     contract.status = 3
     contract.typo = 1
     contract.save()

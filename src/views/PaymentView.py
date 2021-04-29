@@ -46,7 +46,7 @@ def paypal_create():
                 "items": [{
                     "name": "Firmado Digital",
                     "sku": "FIEL_PDF_01",
-                    "price": "100",
+                    "price": "58",
                     "currency": "MXN",
                     "quantity": quantity}]},
             "amount": {

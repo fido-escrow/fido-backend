@@ -87,10 +87,9 @@ def escrow(project_id):
         return custom_response({'error': 'permission denied'}, 403)
     
     contracts = ContractModel.get_all_contracts(proy.id)
-    for contract in contracts
-        if not contract.signed_by_all:
+    for contract in contracts:
+        if not contract.mifiel_signed:
             denyEscrow = True
-
     if denyEscrow:
         return custom_response({'error': 'All contracts must be signed by all to apply for an escrow.' }, 403)      
 

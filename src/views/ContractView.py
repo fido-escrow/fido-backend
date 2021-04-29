@@ -95,7 +95,7 @@ def upload(project_id):
         return custom_response(error, 400)
     finally:
         os.remove(os.path.join(temp_folder, uploaded_file.filename))
-    app.logger.info('signers que llegan de MIFIEL >>>>>>>>>>>> '+str(mifieldocu.response.__dict__))
+    app.logger.info('lo q regressa  de MIFIEL >>>>>>>>>>>> '+str(mifieldocu.response.__dict__))
     signers = mifieldocu.signers
     contract = ContractModel({})
     contract.name = uploaded_file.filename
@@ -130,10 +130,10 @@ def upload(project_id):
 def webhook():
     jdoc = request.get_json()
     if jdoc['signed_by_all']:
-        doc = Document.find(client,jdoc[         'id'])
+        doc = Document.find(client,jdoc['id'])
         app.logger.info('propiedad signed by all  >>>>>>>>>>>>>>>>>>>>>>>>'+str(doc.signed_by_all))
         docname = doc.file_file_name.split('.')[0]
-        mpdf=os.path.join(temp_folder,docname+'_mnnbnb      1   signed.pdf')
+        mpdf=os.path.join(temp_folder,docname+'_signed.pdf')
         mxml=os.path.join(temp_folder,docname+'.xml')
         doc.save_file_signed(mpdf)
         doc.save_xml(mxml)
